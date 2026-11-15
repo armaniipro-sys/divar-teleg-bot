@@ -22,11 +22,9 @@ BOT_TOKEN = _required_env("BOT_TOKEN")
 BOT_CHATID = _required_env("BOT_CHATID")
 
 # Check every 10 minutes
-SLEEP_SEC = os.environ.get("SLEEP_SEC", "600")
-
+SLEEP_SEC = "600"
 # Fardis - city ID must be verified
 SEARCH_CITY_IDS = ["897"]
-
 SEARCH_CATEGORY = "real-estate"
 
 PROXY_URL = os.environ.get("PROXY_URL") or None
