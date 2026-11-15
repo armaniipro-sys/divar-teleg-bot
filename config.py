@@ -49,9 +49,7 @@ REQUEST_HEADERS = {
 
 # Fixed footer appended to every outgoing Telegram message.
 FOOTER_TEXT = (
-    "\n\n📞 شماره تماس جهت هماهنگی:\n"
-    "09922434338\n"
-    "\u200c\n"
-    "📢 [علی‌آباد مِلک | اولین مرجع املاک علی‌آباد کتول]\n"
-    "🆔 @aliabadmelk"
+    "\n\n"
+    "گروه املاک آرمان\n"
+    "تلفن تماس: 09121076323"
 )
