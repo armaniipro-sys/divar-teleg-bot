@@ -1,15 +1,12 @@
 
 """Telegram bot setup and message formatting/sending."""
-import html
 
 import telegram
-
 import config
 from hashtags import generate_hashtags
 
-
 req_proxy = telegram.request.HTTPXRequest(
-    proxy_url=config.PROXY_URL,
+    proxy_url=config.PROXY_URL or None,
     connect_timeout=30,
     read_timeout=30,
     write_timeout=30,
@@ -23,67 +20,40 @@ bot = telegram.Bot(
 
 
 def build_message_text(ad) -> str:
-    text = f"🗄 <b>{html.escape(ad.title)}</b>\n"
+    lines = []
 
-    location_line = ad.posted_in or ad.district
-    if location_line:
-        text += f"📌 محل آگهی: <i>{html.escape(location_line)}</i>\n"
+    lines.append(f"🏠 {ad.title}")
+
+    location = ad.posted_in or ad.district
+    if location:
+        lines.append(f"📍 محل آگهی: {location}")
 
     price = f"{ad.price:,} تومان" if ad.price else "توافقی"
-    text += f"💰 قیمت: {price}\n"
+    lines.append(f"💰 قیمت: {price}")
 
     if ad.features:
-        text += "\n📋 <b>مشخصات:</b>\n"
+        lines.append("\nمشخصات:")
         for label, value in ad.features:
-            text += (
-                f"🔸 {html.escape(str(label))}: "
-                f"{html.escape(str(value))}\n"
-            )
+            lines.append(f"▪️ {label}: {value}")
 
     if ad.description:
-        text += (
-            f"\n📄 <b>توضیحات:</b>\n"
-            f"{html.escape(ad.description)}"
-        )
+        lines.append(f"\nتوضیحات:\n{ad.description}")
 
     hashtags = generate_hashtags(ad)
     if hashtags:
-        text += "\n\n" + " ".join(
-            f"#{tag}" for tag in hashtags
-        )
+        lines.append("\n" + " ".join(f"#{tag}" for tag in hashtags))
 
-    text += config.FOOTER_TEXT
+    lines.append(config.FOOTER_TEXT)
 
-    return text
+    return "\n".join(lines)
 
 
 async def send_telegram_message(ad):
-    """Send ad images and text separately."""
+    """Send text first, then images."""
 
     text = build_message_text(ad)
 
-    # Send images first.
-    images = ad.images or []
-
-    if len(images) == 1:
-        await bot.send_photo(
-            chat_id=config.BOT_CHATID,
-            photo=images[0],
-        )
-
-    elif len(images) > 1:
-        media_list = [
-            telegram.InputMediaPhoto(img)
-            for img in images[:10]
-        ]
-
-        await bot.send_media_group(
-            chat_id=config.BOT_CHATID,
-            media=media_list,
-        )
-
-    # Send text separately to avoid photo caption limits.
-    # Keep every message below Telegram's 4096-character limit.
+    # Send text in safe chunks without HTML parsing.
     limit = 4000
 
     while text:
@@ -94,10 +64,29 @@ async def send_telegram_message(ad):
             if split_at > 0:
                 chunk = chunk[:split_at]
 
-        await bot.send_message(
-            chat_id=config.BOT_CHATID,
-            text=chunk,
-            parse_mode="HTML",
-        )
+        try:
+            await bot.send_message(
+                chat_id=config.BOT_CHATID,
+                text=chunk,
+            )
+        except Exception as error:
+            print(
+                f"TELEGRAM TEXT ERROR: "
+                f"{type(error).__name__}: {error}"
+            )
+            raise
 
         text = text[len(chunk):].lstrip()
+
+    # Send images separately. Image errors do not cancel text delivery.
+    for photo in (ad.images or [])[:10]:
+        try:
+            await bot.send_photo(
+                chat_id=config.BOT_CHATID,
+                photo=photo,
+            )
+        except Exception as error:
+            print(
+                f"TELEGRAM PHOTO ERROR: "
+                f"{type(error).__name__}: {error}"
+            )
