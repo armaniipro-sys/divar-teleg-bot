@@ -1,11 +1,10 @@
+
 """Central place for environment-driven configuration and constants."""
 import os
 
 DIVAR_SEARCH_URL = "https://api.divar.ir/v8/postlist/w/search"
 DIVAR_POST_DETAIL_URL = "https://api.divar.ir/v8/posts-v2/web/{token}"
-# Divar loads the seller's phone number lazily (behind the "show number"
-# button) rather than in the post detail response above. Configurable via
-# env in case Divar changes the path.
+
 DIVAR_CONTACT_URL = os.environ.get(
     "DIVAR_CONTACT_URL",
     "https://api.divar.ir/v8/postcontact/web/contact_info/{token}",
@@ -21,11 +20,14 @@ def _required_env(name):
 
 BOT_TOKEN = _required_env("BOT_TOKEN")
 BOT_CHATID = _required_env("BOT_CHATID")
-SLEEP_SEC = os.environ.get("SLEEP_SEC", "")
 
-# Comma-separated list of city IDs, e.g. "823,1996,1999"
+# Check every 10 minutes
+SLEEP_SEC = os.environ.get("SLEEP_SEC", "600")
+
+# Fardis - city ID must be verified
 SEARCH_CITY_IDS = ["897"]
-SEARCH_CATEGORY = os.environ.get("SEARCH_CATEGORY", "").strip() or "real-estate"
+
+SEARCH_CATEGORY = "real-estate"
 
 PROXY_URL = os.environ.get("PROXY_URL") or None
 
@@ -43,7 +45,6 @@ REQUEST_HEADERS = {
     "x-standard-divar-error": "true",
 }
 
-# Fixed footer appended to every outgoing Telegram message.
 FOOTER_TEXT = (
     "\n\n"
     "گروه املاک آرمان\n"
