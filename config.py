@@ -21,11 +21,19 @@ def _required_env(name):
 BOT_TOKEN = _required_env("BOT_TOKEN")
 BOT_CHATID = _required_env("BOT_CHATID")
 
-# Check every 10 minutes
-SLEEP_SEC = "600"
-# Fardis - city ID must be verified
-SEARCH_CITY_IDS = ["897"]
-SEARCH_CATEGORY = "real-estate"
+# GitHub Actions controls the 10-minute schedule.
+# Divar city ID for Fardis: 1751.
+_DEFAULT_CITY_IDS = ["1751"]
+_city_ids_env = os.environ.get("SEARCH_CITY_IDS", "").strip()
+SEARCH_CITY_IDS = (
+    [city.strip() for city in _city_ids_env.split(",") if city.strip()]
+    if _city_ids_env
+    else _DEFAULT_CITY_IDS
+)
+if not SEARCH_CITY_IDS:
+    SEARCH_CITY_IDS = _DEFAULT_CITY_IDS
+
+SEARCH_CATEGORY = os.environ.get("SEARCH_CATEGORY", "").strip() or "real-estate"
 
 PROXY_URL = os.environ.get("PROXY_URL") or None
 

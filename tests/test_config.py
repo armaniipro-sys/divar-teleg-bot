@@ -38,19 +38,19 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout), [cities, category])
 
     def test_absent_optional_variables_use_documented_defaults(self):
-        self.assert_search({}, ["897"], "real-estate")
+        self.assert_search({}, ["1751"], "real-estate")
 
     def test_blank_optional_variables_use_documented_defaults(self):
         for value in ("", " ", "\t\n"):
             with self.subTest(value=value):
                 self.assert_search(
                     {"SEARCH_CITY_IDS": value, "SEARCH_CATEGORY": value},
-                    ["897"],
+                    ["1751"],
                     "real-estate",
                 )
 
     def test_empty_comma_separated_city_list_uses_default(self):
-        self.assert_search({"SEARCH_CITY_IDS": " , ,\t,"}, ["897"], "real-estate")
+        self.assert_search({"SEARCH_CITY_IDS": " , ,\t,"}, ["1751"], "real-estate")
 
     def test_city_list_and_category_trim_surrounding_whitespace(self):
         self.assert_search(
