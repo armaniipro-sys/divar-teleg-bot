@@ -24,11 +24,7 @@ BOT_CHATID = _required_env("BOT_CHATID")
 SLEEP_SEC = os.environ.get("SLEEP_SEC", "")
 
 # Comma-separated list of city IDs, e.g. "823,1996,1999"
-SEARCH_CITY_IDS = [
-    c.strip()
-    for c in os.environ.get("SEARCH_CITY_IDS", "").split(",")
-    if c.strip()
-] or ["897"]
+SEARCH_CITY_IDS = ["897"]
 SEARCH_CATEGORY = os.environ.get("SEARCH_CATEGORY", "").strip() or "real-estate"
 
 PROXY_URL = os.environ.get("PROXY_URL") or None
